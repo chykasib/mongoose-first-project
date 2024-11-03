@@ -100,15 +100,15 @@ const LocalGuardianSchema = new Schema<TLocalGuardian>({
 const studentSchema = new Schema<TStudent, StudentModel>({
   id: {
     type: String,
-    required: [true, 'Student ID is required'],
+    required: [true, 'User ID is required'],
     unique: true,
     trim: true,
   },
-  password: {
-    type: String,
-    required: [true, 'Student password is required'],
-    maxlength: [20, 'password cannot be more than 20 characters'],
-    trim: true,
+  user: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'User ID is required'],
+    unique: true,
+    ref: 'User',
   },
   name: {
     type: UserNameSchema,
@@ -174,13 +174,6 @@ const studentSchema = new Schema<TStudent, StudentModel>({
   },
   profileImage: {
     type: String,
-    trim: true,
-  },
-  isActive: {
-    type: String,
-    enum: ['active', 'blocked'],
-    default: 'active',
-    required: [true, 'Active status is required'],
     trim: true,
   },
   isDeleted: {
@@ -264,13 +257,13 @@ studentSchema.pre('aggregate', function (next) {
 //   return bcrypt.compare(candidatePassword, this.password);
 // };
 
-studentSchema.pre('save', function () {
-  console.log(this, 'pre hook : we will save to data');
-});
+// studentSchema.pre('save', function () {
+//   console.log(this, 'pre hook : we will save to data');
+// });
 
-studentSchema.post('save', function () {
-  console.log(this, 'pre hook : we saved our data');
-});
+// studentSchema.post('save', function () {
+//   console.log(this, 'pre hook : we saved our data');
+// });
 
 // studentSchema.methods.isUserExits = async function (id: string) {
 //   const existingUser = await Student.findOne({ id });
