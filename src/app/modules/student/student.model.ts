@@ -172,9 +172,12 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     type: LocalGuardianSchema,
     required: [true, 'Local guardian details are required'],
   },
-  profileImage: {
-    type: String,
-    trim: true,
+  profileImg: { type: String },
+  admissionSemester: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'Admission Semester ID is required'],
+    unique: true,
+    ref: 'AcademicSemester',
   },
   isDeleted: {
     type: Boolean,
@@ -200,7 +203,7 @@ UserNameSchema.virtual('fullName')
     this.lastName = nameParts.length === 3 ? nameParts[2] : nameParts[1];
   });
 
-// Ensure virtuals are included when converting documents to JSON
+// Ensure virtual are included when converting documents to JSON
 UserNameSchema.set('toJSON', { virtuals: true });
 UserNameSchema.set('toObject', { virtuals: true });
 
