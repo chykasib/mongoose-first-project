@@ -9,6 +9,8 @@ import {
   TUserName,
 } from './student.interface';
 import config from '../../config';
+import AppError from '../../errors/AppError';
+import { StatusCodes } from 'http-status-codes';
 
 const GuardianSchema = new Schema<TGuardian>({
   fatherName: {
@@ -183,6 +185,12 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     type: Boolean,
     default: false,
   },
+  academicDepartment: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'Academic Department ID is required'],
+    unique: true,
+    ref: 'AcademicDepartment',
+  },
 });
 
 //virtual
@@ -277,5 +285,15 @@ studentSchema.statics.isUserExits = async function (id: string) {
   const existingUser = await Student.findOne({ id });
   return existingUser;
 };
+
+studentSchema.pre('findOneAndUpdate', async function (next) {
+  const query = this.getQuery();
+  const isStudentExits = await Student.findOne(query);
+
+  if (!isStudentExits) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'student doest not exist!');
+  }
+  next();
+});
 
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);
