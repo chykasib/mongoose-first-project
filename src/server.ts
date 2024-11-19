@@ -1,12 +1,15 @@
 import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
+import { Server } from 'http';
+
+let server: Server;
 
 async function bootstrap() {
   try {
     await mongoose.connect(config.database_url as string);
 
-    app.listen(config.port, () => {
+    server = app.listen(config.port, () => {
       console.log(`Example app listening on port ${config.port}`);
     });
   } catch (err) {
@@ -15,3 +18,22 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+// check unhandledRejection
+
+process.on('unhandledRejection', () => {
+  console.log('unhandledRejection is detected');
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+  process.exit(1);
+});
+
+// check uncaughtException
+
+process.on('uncaughtException', () => {
+  console.log('uncaughtException is detected');
+  process.exit(1);
+});

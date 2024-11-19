@@ -17,7 +17,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('hello world');
 });
 
-const test = (req: Request, res: Response) => {
+const test = async (req: Request, res: Response) => {
   const a = 10;
   res.send(a);
 };

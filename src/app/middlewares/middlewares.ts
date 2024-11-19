@@ -10,6 +10,7 @@ import handleValidationError from '../errors/handleValidationError';
 import { CastError } from 'mongoose';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
+import AppError from '../errors/AppError';
 
 const globalErrorHandler = (
   err: any,
@@ -19,7 +20,7 @@ const globalErrorHandler = (
 ) => {
   //setting default values
   let statusCode = 500;
-  let message = err.message || 'Something went wrong!';
+  let message = 'Something went wrong!';
 
   let errorSources: TErrorSources = [
     {
@@ -58,6 +59,29 @@ const globalErrorHandler = (
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
+  }
+
+  //check appError
+  else if (err instanceof AppError) {
+    statusCode = err?.statusCode;
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
+  }
+
+  //check Error
+  else if (err instanceof Error) {
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
   }
 
   //ultimate return
