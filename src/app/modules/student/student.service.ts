@@ -6,15 +6,21 @@ import { StatusCodes } from 'http-status-codes';
 import { User } from '../user/user.model';
 
 const getAllStudentFromDB = async (query: Record<string, unknown>) => {
-  console.log('base query', query);
+  console.log('base', query);
   const queryObj = { ...query };
-  //{ 'email' : {$regex : query.searchTerm, $options : 'i'}}
-  const studentSearchableFields = ['name.firstName', 'email', 'contactNo'];
   let searchTerm = '';
-  if (query.searchTerm) {
+  if (query?.searchTerm) {
     searchTerm = query?.searchTerm as string;
   }
 
+  const studentSearchableFields = ['name.firstName', 'email'];
+
+  // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH  :
+  //  { email: { $regex : query.searchTerm , $options: i}}
+  //  { presentAddress: { $regex : query.searchTerm , $options: i}}
+  //  { 'name.firstName': { $regex : query.searchTerm , $options: i}}
+
+  //search query
   const searchQuery = Student.find({
     $or: studentSearchableFields.map((field) => ({
       [field]: { $regex: searchTerm, $options: 'i' },
@@ -22,9 +28,10 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   });
 
   //filtering
-  const excludeFields = ['searchTerm', 'sort', 'limit'];
+
+  const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
   excludeFields.forEach((el) => delete queryObj[el]);
-  // console.log({ query, queryObj });
+  console.log({ query, queryObj });
 
   const filterQuery = searchQuery
     .find(queryObj)
@@ -35,20 +42,45 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
         path: 'academicFaculty',
       },
     });
-  let sort = '-createdAt';
 
-  if (query.sort) {
-    sort = query.sort as string;
+  //sorting query
+  let sort = '-createdAt';
+  if (query?.sort) {
+    sort = query?.sort as string;
   }
+
   const sortQuery = filterQuery.sort(sort);
 
-  let limit = 1;
-  if (query.limit) {
-    limit = query.limit as number;
-  }
-  const limitQuery = await sortQuery.limit(limit);
+  //limit and paginate query
 
-  return limitQuery;
+  let page = 1;
+  let limit = 10;
+  let skip = 0;
+
+  if (query?.limit) {
+    limit = Number(query?.limit);
+  }
+
+  if (query?.page) {
+    page = Number(query?.page);
+    skip = Number((page - 1) * limit);
+  }
+
+  const paginateQuery = sortQuery.skip(skip);
+
+  const limitQuery = paginateQuery.limit(limit);
+
+  //field limiting
+
+  let fields = '-__v';
+  if (query?.fields) {
+    fields = (query?.fields as string).split(',').join(' ');
+    console.log({ fields });
+  }
+
+  const fieldQuery = await limitQuery.select(fields);
+
+  return fieldQuery;
 };
 
 const getSingleStudentFromDB = async (id: string) => {

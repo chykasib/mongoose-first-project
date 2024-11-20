@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 
 const getAllStudent = catchAsync(async (req, res) => {
+  console.log(req.query);
   //using req.query for search
   const result = await StudentServices.getAllStudentFromDB(req.query);
   sendResponse(res, {
