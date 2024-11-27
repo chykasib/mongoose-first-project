@@ -17,6 +17,17 @@ router.patch(
   validateRequest(CourseValidation.updateCourseValidationSchema),
   CourseControllers.updateCourse,
 );
+router.put(
+  '/:courseId/assign-faculties',
+  validateRequest(CourseValidation.facultiesWithCourseValidationSchema),
+  CourseControllers.assignFacultiesWithCourse,
+);
+
+router.delete(
+  '/:courseId/remove-faculties',
+  validateRequest(CourseValidation.facultiesWithCourseValidationSchema),
+  CourseControllers.removeFacultiesFromCourse,
+);
 router.delete('/:id', CourseControllers.deleteSingleCourse);
 
 export const CourseRoutes = router;
