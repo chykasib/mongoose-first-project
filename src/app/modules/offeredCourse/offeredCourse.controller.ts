@@ -27,7 +27,36 @@ const getAllOfferedCourses = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleOfferedCourse = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await OfferedCourseServices.getSingleOfferedCourseFromDB(id);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'OfferedCourse retrieved successfully !',
+      data: result,
+    });
+  },
+);
+
+const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await OfferedCourseServices.updateOfferedCourseIntoDB(
+    id,
+    req.body,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'OfferedCourse is updated successfully !',
+    data: result,
+  });
+});
+
 export const OfferedCourseControllers = {
   createOfferedCourse,
   getAllOfferedCourses,
+  getSingleOfferedCourse,
+  updateOfferedCourse,
 };
