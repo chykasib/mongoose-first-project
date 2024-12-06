@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { OfferedCourseServices } from './offeredCourse.service';
+
 const createOfferedCourse = catchAsync(async (req: Request, res: Response) => {
   const result = await OfferedCourseServices.createOfferedCourseIntoDB(
     req.body,
@@ -27,14 +28,14 @@ const getAllOfferedCourses = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getSingleOfferedCourse = catchAsync(
+const getSingleOfferedCourses = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await OfferedCourseServices.getSingleOfferedCourseFromDB(id);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
-      message: 'OfferedCourse retrieved successfully !',
+      message: 'OfferedCourse fetched successfully',
       data: result,
     });
   },
@@ -42,6 +43,7 @@ const getSingleOfferedCourse = catchAsync(
 
 const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const result = await OfferedCourseServices.updateOfferedCourseIntoDB(
     id,
     req.body,
@@ -49,14 +51,28 @@ const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'OfferedCourse is updated successfully !',
+    message: 'OfferedCourse updated successfully',
     data: result,
   });
 });
 
+const deleteOfferedCourseFromDB = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await OfferedCourseServices.deleteOfferedCourseFromDB(id);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'OfferedCourse deleted successfully',
+      data: result,
+    });
+  },
+);
+
 export const OfferedCourseControllers = {
   createOfferedCourse,
   getAllOfferedCourses,
-  getSingleOfferedCourse,
+  getSingleOfferedCourses,
   updateOfferedCourse,
+  deleteOfferedCourseFromDB,
 };
